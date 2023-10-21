@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
       // await Future.delayed(const Duration(seconds: 3), () {});
 
       final response =
-          await _dio.get('https://jsonplaceholder.typicode.com/todos');
+          await _dio.get('https://jsonplaceholder.typicode.com/albums');
       debugPrint(response.data.toString());
       // parse
       List list = jsonDecode(response.data.toString());
@@ -50,43 +50,70 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     Widget body;
 
-    if (_error != null) {
+    if (_error == null) {
       body = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(_error!),
+          Text(
+            "Photo Albums",
+            style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              getTodos();
-            },
-            child: const Text('RETRY'),
-          )
+          Expanded(
+              child: ListView.builder(
+                itemCount: _itemList!.length,
+                itemBuilder: (context, index){
+                  var todoItem = _itemList![index];
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(todoItem.title),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Card(
+                                color: Colors.red[100],
+                                child:
+                                Text('Todo ID: ' + todoItem.id.toString())),
+                              Card(
+                                color: Colors.blue[100],
+                                child: Text(
+                                  'User ID: ' + todoItem.userId.toString()))
+                            ],
+                          )
+                      ],),
+                    ),
+                  );
+                }
+              )
+          ),
         ],
       );
-    } else if (_itemList == null) {
-      body = const Center(child: CircularProgressIndicator());
-    } else {
-      body = ListView.builder(
-          itemCount: _itemList!.length,
-          itemBuilder: (context, index) {
-            var todoItem = _itemList![index];
-            return Card(
-                child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(children: [
-                      Expanded(child: Text(todoItem.title)),
-                      Checkbox(
-                          value: todoItem.completed,
-                          onChanged: (newValue) {
-                            setState(() {
-                              todoItem.completed = newValue!;
-                            });
-                          })
-                    ])));
-          });
+    }else{
+      body = Column(
+        children: [
+          Text(
+            "Error: $_error",
+            style: TextStyle(
+              fontSize: 24,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+              onPressed: () {
+                getTodos();
+          },
+            child: const Text('RETRY'),)
+        ],
+      );
     }
-
-    return Scaffold(body: body);
-  }
+      return Scaffold(body: body);
+    }
 }
